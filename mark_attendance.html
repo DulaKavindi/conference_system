@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Participant Check-In</title>
+    <link rel="stylesheet" href="styles3.css"> <!-- Add your CSS for styling -->
+</head>
+<body>
+    <header>
+        <h2>Mark attendence</h2>
+
+    </header>
+    <div class="container">
+        
+        <!-- QR Code scanning form -->
+        <form id="checkInForm">
+            <label for="qrData">Scan QR Code:</label>
+            <input type="text" id="qrData" name="qrData" placeholder="Scan QR code or enter it manually" required>
+            
+            
+        </br>
+    </br>
+            
+
+            <button type="submit">Mark Attendance</button>
+        </form>
+
+        <!-- Response message will appear here -->
+        <div id="responseMessage"></div>
+    </div>
+
+    <script>
+        // JavaScript to handle the form submission
+        document.getElementById('checkInForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            // Get form values
+            const qrData = document.getElementById('qrData').value;
+            const sessionId = document.getElementById('session_id').value;
+
+            // Check if both QR data and session ID are provided
+            if (!qrData || !sessionId) {
+                showMessage("Error! QR Code or Session ID is missing.", 'error');
+                return;
+            }
+
+            // Send the data to mark_attendance.php
+            fetch('mark_attendance.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ qrData: qrData, session_id: sessionId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the response from the server
+                if (data.message) {
+                    showMessage(data.message, 'success');
+                } else if (data.error) {
+                    showMessage(data.error, 'error');
+                }
+            })
+            .catch(error => {
+                showMessage("There was an error: " + error, 'error');
+            });
+        });
+
+        // Function to show messages (success or error)
+        function showMessage(message, type) {
+            const responseDiv = document.getElementById('responseMessage');
+            responseDiv.textContent = message;
+            responseDiv.className = type; // Add success or error class to style the message
+        }
+    </script>
+</body>
+</html>
